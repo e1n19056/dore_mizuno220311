@@ -27,7 +27,7 @@ sudo apt-get install libavcodec-dev -y
 sudo apt-get install libswscale-dev -y
 sudo apt-get install python-numpy -y
 sudo apt-get install python-matplotlib -y
-sudo pip install opencv-python
+sudo pip install opencv-python=4.5.3
 sudo apt-get install python-imaging-tk
 
 # pull and build h264 decoder library

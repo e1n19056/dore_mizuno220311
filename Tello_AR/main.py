@@ -38,25 +38,28 @@ def main():
             corners, ids, rejectedImgPoints = aruco.detectMarkers(small_image, dictionary) #マーカを検出
             aruco.drawDetectedMarkers(small_image, corners, ids, (0,255,0)) #検出したマーカ情報を元に，原画像に描画する
 
-            # 50回同じマーカーが見えたらコマンド送信する処理
+            # 100回同じマーカーが見えたらコマンド送信する処理
             try:
 		number=0
-                if ids != None: # idsが空(マーカーが１枚も認識されなかった)場合は何もしない
+                if ids != None  : # idsが空(マーカーが１枚も認識されなかった)場合は何もしない
 		    if len(ids) == 1:  #marcker=1
 			idno = ids[0,0]
 		    else :
 			max_len = 0
 			idno = ids[0,0]
+			#print("ok_no1")
 			while number < len(ids): # many marcher
 			    if corners[list(ids.flatten()).index(number)][number][1] - corners[list(ids.flatten()).index(number)][number][0] > max_len:
 				max_len = corners[list(ids.flatten()).index(number)][number][1] - corners[list(ids.flatten()).index(number)][number][0]
 				idno = ids[number,0]
+				#print("ok_no2")
+			    number=number+1
                     #idno = ids[0,0] # idsには複数のマーカーが入っているので，0番目のマーカーを取り出す
 
                     if idno == pre_idno:    # 今回認識したidnoが前回のpre_idnoと同じ時には処理
                         count+=1            # 同じマーカーが見えてる限りはカウンタを増やす
 
-                        if count > 100:      # 50回同じマーカーが続いたら，コマンドを確定する
+                        if count > 100:      # 100回同じマーカーが続いたら，コマンドを確定する
                             print("ID=%d"%(idno))
 
                             if idno == 0:
@@ -66,24 +69,30 @@ def main():
                                 drone.land()                # 着陸
                                 time.sleep(3)
                             elif idno == 2:
-                                drone.move_up(0.3)          # 上昇
+                                drone.move_up(0.5)	    #上下
+				time.sleep(4)
+				drone.move_down(0.5)
+				time.sleep(4)
                             elif idno == 3:
-                                drone.move_down(0.3)        # 下降
+				drone.rotate_ccw(180)	     # 半回転着陸
+				time.sleep(3)
+                                drone.land()
+				time.sleep(3)
                             elif idno == 4:
-                                drone.rotate_ccw(90)        # 左旋回
+                                drone.rotate_ccw(360)        # 左旋回
                             elif idno == 5:
-                                drone.rotate_cw(90)         # 右旋回
+                                drone.rotate_cw(360)         # 右旋回
                             elif idno == 6:
-                                drone.move_forward(1.5)     # 前進
+                                drone.move_forward(1.35)     # 前進
 				time.sleep(3)
                             elif idno == 7:
-                                drone.move_backward(1)    # 後進
+                                drone.move_backward(1.35)    # 後進
 				time.sleep(3)
                             elif idno == 8:
-                                drone.move_left(1.5)        # 左移動
+                                drone.move_left(1.4)        # 左移動
 				time.sleep(3)
                             elif idno == 9:
-                                drone.move_right(1)       # 右移動
+                                drone.move_right(1.4)       # 右移動
 				time.sleep(3)
 
                             count = 0   # コマンド送信したらカウント値をリセット
@@ -107,24 +116,25 @@ def main():
                 break
             elif key == ord('t'):
                 drone.takeoff()             # 離陸
+		time.sleep(8)
             elif key == ord('l'):
                 drone.land()                # 着陸
             elif key == ord('w'):
-                drone.move_forward(1)     # 前進
+                drone.move_forward(0.3)     # 前進
             elif key == ord('s'):
-                drone.move_backward(1)    # 後進
+                drone.move_backward(0.3)    # 後進
             elif key == ord('a'):
-                drone.move_left(1)        # 左移動
+                drone.move_left(0.3)        # 左移動
             elif key == ord('d'):
-                drone.move_right(1)       # 右移動
+                drone.move_right(0.3)       # 右移動
             elif key == ord('q'):
-                drone.rotate_ccw(90)        # 左旋回
+                drone.rotate_ccw(5)        # 左旋回
             elif key == ord('e'):
-                drone.rotate_cw(90)         # 右旋回
+                drone.rotate_cw(5)         # 右旋回
             elif key == ord('r'):
-                drone.move_up(0.3)          # 上昇
+                drone.move_up(0.5)          # 上昇
             elif key == ord('f'):
-                drone.move_down(0.3)        # 下降
+                drone.move_down(0.5)        # 下降
 
             # (Z)5秒おきに'command'を送って、死活チェックを通す
             current_time = time.time()  # 現在時刻を取得
@@ -133,7 +143,7 @@ def main():
                 pre_time = current_time         # 前回時刻を更新
 
     except( KeyboardInterrupt, SystemExit):    # Ctrl+cが押されたら離脱
-        print( "SIGINTを検知" )
+        print( "\nSIGINTを検知" )
 
     # telloクラスを削除
     del drone
